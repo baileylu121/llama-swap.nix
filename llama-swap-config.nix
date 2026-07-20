@@ -536,6 +536,8 @@ let
   };
 in
 {
+  _class = "llama-swap";
+
   options = {
     healthCheckTimeout = mkOption {
       description = ''

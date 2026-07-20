@@ -37,6 +37,18 @@
           })
         );
     in {
+      lib.parseLLamaSwapCfg = module:
+        let
+          evalResult = lib.evalModules {
+            modules = [
+              ./llama-swap-config.nix
+              module
+            ];
+            class = "llama-swap";
+          };
+        in
+          lib.generators.toYAML evalResult.config;
+
       packages = eachSystem (
         { pkgs, system, ... }:
         let
@@ -50,6 +62,14 @@
           };
         }
       );
+
+      modules = eachSystem (
+        { pkgs, system, ... }:
+        {
+          default = (lib.modules.importApply ./llama-swap.nix { inherit pkgs; });
+        }
+      );
+
       devShells = eachSystem (
         { pkgs, system, ... }:
         {
