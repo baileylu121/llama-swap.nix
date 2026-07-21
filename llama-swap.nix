@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, nixified-ai, ... }:
 { lib, config, ... }:
 let
   inherit (lib) mkOption mkPackageOption types;
@@ -28,12 +28,14 @@ in
         TLS certificate file path
       '';
       type = types.nullOr types.pathInStore;
+      default = null;
     };
     tlsKeyFile = mkOption {
       description = ''
         TLS key file path
       '';
       type = types.nullOr types.pathInStore;
+      default = null;
     };
   };
 
@@ -44,9 +46,9 @@ in
         text = ''
           ${lib.getExe cfg.package} \
           -config ${cfg.config} \
-          -listen ${cfg.listen} \
-          ${lib.optionalString cfg.tlsCertFile "-tls-cert-file ${cfg.tlsCertFile}"} \
-          ${lib.optionalString cfg.tlsKeyFile "-tls-key-file ${cfg.tlsKeyFile}"} \
+          -listen ${toString cfg.listen} \
+          ${lib.optionalString (cfg.tlsCertFile != null) "-tls-cert-file ${cfg.tlsCertFile}"} \
+          ${lib.optionalString (cfg.tlsKeyFile != null) "-tls-key-file ${cfg.tlsKeyFile}"} \
           "$@"
         '';
       };

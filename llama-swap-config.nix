@@ -275,6 +275,7 @@ let
         type = types.nullOr types.bool;
         default = null;
       };
+
       timeouts = mkOption {
         description = ''
           Configure proxy connection timeouts for this model. Useful for
