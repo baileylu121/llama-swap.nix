@@ -2,8 +2,7 @@
   description = "llama-swap nix modular service";
 
   inputs = {
-    # temp pin until the bad reload signal PR gets fixed
-    nixpkgs.url = "github:imincik/nixpkgs/nixos-unstable+pr-540857";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nimi = {
       url = "github:weyl-ai/nimi";
       inputs.nixpkgs.follows = "nixpkgs";

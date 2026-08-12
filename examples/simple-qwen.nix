@@ -27,11 +27,13 @@
         # Load qwen 3.5 0.8B with llama-server
         # You can add more than one model here
         models."Qwen3.5-0.8B" = {
-          cmd = ''
-            ${lib.getExe' pkgs.llama-cpp "llama-server"} \
-            --model ${qwen} \
-            --port 16234
-          '';
+          cmd = llama-swap-lib.formatLlamaCmd {
+            package = pkgs.llama-cpp;
+            args = {
+              model = qwen;
+              port = 16234;
+            };
+          };
           proxy = "http://localhost:16234";
         };
       };

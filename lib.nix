@@ -110,4 +110,71 @@ rec {
     ```
   */
   module = serviceModule;
+
+  /**
+    A formatter for [`lib.cli.toCommandLine`](https://noogle.dev/f/lib/cli/toCommandLine/)
+    that produces llama style command options.
+
+    # Example
+
+    ```nix
+    lib.cli.toCommandLine llamaOptionFormat {
+      model = "my-model";
+      port = "8080";
+    };
+
+    # Type
+
+    ```
+    llamaOptionFormat :: AttrSet -> [String]
+    ```
+
+    # Arguments
+
+    optionName
+    : The name to format as a llama arg
+  */
+  llamaOptionFormat = optionName: {
+    option = "--${optionName}";
+    sep = null;
+    explicitBool = true;
+  };
+
+  /**
+    Create a llama style command string out of a series of
+    declarative options.
+
+    # Example
+
+    ```nix
+    formatLlamaCmd {
+      package = pkgs.llama-cpp;
+      args = {
+        model = my-model;
+        port = 8080;
+      };
+    }
+    # Type
+
+    ```
+    formatLlamaCmd :: AttrSet -> String
+    ```
+
+    # Arguments
+
+    args
+    : A attr set of config options for the llama command
+  */
+  formatLlamaCmd =
+    {
+      package,
+      exe ? "llama-server",
+      args,
+    }:
+    let
+      cliArgs = lib.cli.toCommandLine llamaOptionFormat args;
+
+      scriptArgsString = lib.concatStringsSep " \\\n  " cliArgs;
+    in
+    "${lib.getExe' package exe} ${scriptArgsString}";
 }
