@@ -13,7 +13,7 @@
   services."llama-example" = {
     imports = [ llama-swap-lib.module ];
 
-    config.llama-swap.config =
+    llama-swap.config =
       let
         # Custom fetcher that uses HF_TOKEN if you have it set
         # to get around rate limits
