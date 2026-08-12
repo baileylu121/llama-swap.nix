@@ -18,7 +18,6 @@
   outputs =
     { nixpkgs, nixified-ai, ... }@inputs:
     let
-
       inherit (nixpkgs) lib;
 
       systems = [
@@ -32,9 +31,9 @@
         lib.genAttrs systems (
           system:
           (fn rec {
-            inherit system;
+            inherit system lib inputs;
             pkgs = nixpkgs.legacyPackages.${system};
-            serviceModule = (lib.modules.importApply ./llama-swap.nix { inherit pkgs nixified-ai; });
+            serviceModule = (lib.modules.importApply ./modules/root.nix { inherit pkgs nixified-ai; });
           })
         );
     in
@@ -43,7 +42,6 @@
         {
           pkgs,
           system,
-          serviceModule,
           ...
         }:
         let
@@ -57,53 +55,29 @@
         }
       );
 
+      checks = eachSystem (
+        {
+          inputs,
+          system,
+          ...
+        }:
+        {
+          default = inputs.self.packages.${system}.default;
+        }
+      );
+
       modules = eachSystem (
         {
-          pkgs,
-          system,
           serviceModule,
           ...
         }:
         {
           default = serviceModule;
+          llamaSwap = serviceModule;
         }
       );
 
-      lib = eachSystem (
-        { pkgs, serviceModule, ... }:
-        rec {
-          writeLLamaSwapCfgFile =
-            module:
-            let
-              evalResult = lib.evalModules {
-                modules = [
-                  ./llama-swap-config.nix
-                  module
-                ];
-                class = "llama-swap";
-                specialArgs = { inherit pkgs; };
-              };
-            in
-            pkgs.writers.writeYAML "llama-swap-config.yaml" evalResult.config;
-
-          fetchHuggingFace =
-            args:
-            let
-              upstream = pkgs.callPackage "${nixified-ai}/flake-modules/fetchers/fetchresource/default.nix" { };
-              argsWithPassthru = if args ? passthru then args else args // { passthru = { }; };
-            in
-            upstream argsWithPassthru;
-
-          module = serviceModule;
-        }
-      );
-
-      devShells = eachSystem (
-        { pkgs, system, ... }:
-        {
-          default = import ./devshell.nix { inherit pkgs; };
-        }
-      );
+      lib = eachSystem (import ./lib.nix);
 
       formatter = eachSystem ({ pkgs, ... }: pkgs.nixfmt-tree);
     };

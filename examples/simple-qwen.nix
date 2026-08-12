@@ -25,6 +25,7 @@
       in
       llama-swap-lib.writeLLamaSwapCfgFile {
         # Load qwen 3.5 0.8B with llama-server
+        # You can add more than one model here
         models."Qwen3.5-0.8B" = {
           cmd = ''
             ${lib.getExe' pkgs.llama-cpp "llama-server"} \
