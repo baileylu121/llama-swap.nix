@@ -18,10 +18,10 @@ in
     };
     listen = mkOption {
       description = ''
-        Port to listen on
+        Address to listen on
       '';
-      type = types.port;
-      default = 8080;
+      type = types.str;
+      default = "localhost:8080";
     };
     tlsCertFile = mkOption {
       description = ''

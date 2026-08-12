@@ -16,7 +16,8 @@
   };
 
   outputs =
-    { nixpkgs, nixified-ai, ... }@inputs: let
+    { nixpkgs, nixified-ai, ... }@inputs:
+    let
 
       inherit (nixpkgs) lib;
 
@@ -36,62 +37,64 @@
             serviceModule = (lib.modules.importApply ./llama-swap.nix { inherit pkgs nixified-ai; });
           })
         );
-    in {
+    in
+    {
       packages = eachSystem (
-        { pkgs, system, serviceModule, ... }:
+        {
+          pkgs,
+          system,
+          serviceModule,
+          ...
+        }:
         let
           nimi = inputs.nimi.packages.${system}.default;
-          llama-swap-lib = inputs.self.lib.${system};
         in
         {
           default = nimi.mkNimiBin {
-            services."llama-example" = {
-              imports = [ serviceModule ];
-
-              config.llama-swap.config = let
-                qwen = llama-swap-lib.fetchHuggingFace {
-                  url = "https://huggingface.co/ggml-org/Qwen3.5-0.8B-GGUF/resolve/main/Qwen3.5-0.8B-BF16.gguf";
-                  name = "Qwen3.5-0.8B";
-                  sha256 = lib.fakeHash;
-                  passthru = { };
-                };
-              in llama-swap-lib.writeLLamaSwapCfgFile {
-                models.qwen = {
-                  cmd = ''
-                    ${lib.getExe pkgs.llama-cpp}
-                    --model ${qwen}
-                  '';
-                  name = "Qwen3.5-0.8B";
-                };
-              };
-            };
+            _module.args.llama-swap-lib = inputs.self.lib.${system};
+            imports = [ ./examples/simple-qwen.nix ];
           };
         }
       );
 
       modules = eachSystem (
-        { pkgs, system, serviceModule, ... }:
+        {
+          pkgs,
+          system,
+          serviceModule,
+          ...
+        }:
         {
           default = serviceModule;
         }
       );
 
       lib = eachSystem (
-        { pkgs, ... }:
+        { pkgs, serviceModule, ... }:
         rec {
-          writeLLamaSwapCfgFile = module:
-          let
-            evalResult = lib.evalModules {
-              modules = [
-                ./llama-swap-config.nix
-                module
-              ];
-              class = "llama-swap";
-            };
-          in
-          pkgs.writers.writeYAML "llama-swap-config.yaml" evalResult.config;
+          writeLLamaSwapCfgFile =
+            module:
+            let
+              evalResult = lib.evalModules {
+                modules = [
+                  ./llama-swap-config.nix
+                  module
+                ];
+                class = "llama-swap";
+                specialArgs = { inherit pkgs; };
+              };
+            in
+            pkgs.writers.writeYAML "llama-swap-config.yaml" evalResult.config;
 
-          fetchHuggingFace = pkgs.callPackage "${nixified-ai}/flake-modules/fetchers/fetchresource/default.nix" {};
+          fetchHuggingFace =
+            args:
+            let
+              upstream = pkgs.callPackage "${nixified-ai}/flake-modules/fetchers/fetchresource/default.nix" { };
+              argsWithPassthru = if args ? passthru then args else args // { passthru = { }; };
+            in
+            upstream argsWithPassthru;
+
+          module = serviceModule;
         }
       );
 
@@ -101,5 +104,7 @@
           default = import ./devshell.nix { inherit pkgs; };
         }
       );
+
+      formatter = eachSystem ({ pkgs, ... }: pkgs.nixfmt-tree);
     };
 }

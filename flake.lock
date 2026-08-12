@@ -110,7 +110,9 @@
       "inputs": {
         "flake-parts": "flake-parts",
         "hercules-ci-effects": "hercules-ci-effects",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": [
+          "nixpkgs"
+        ]
       },
       "locked": {
         "lastModified": 1784484525,
@@ -127,22 +129,6 @@
       }
     },
     "nixpkgs": {
-      "locked": {
-        "lastModified": 1784628443,
-        "narHash": "sha256-4Ztw87nz9iSaxfh/3mqXs4B/YXjx8+PnxBRdUi1akYk=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "3d2613bc58a1f5b7805467a63a825e1d7bc9b7a9",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable-small",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_2": {
       "locked": {
         "lastModified": 1784553897,
         "narHash": "sha256-szGR07E/UiAxen8/dXg/HuStmkx3gkTIQK4FEYlXJLs=",
@@ -162,7 +148,7 @@
       "inputs": {
         "nimi": "nimi",
         "nixified-ai": "nixified-ai",
-        "nixpkgs": "nixpkgs_2"
+        "nixpkgs": "nixpkgs"
       }
     }
   },
