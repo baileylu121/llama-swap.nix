@@ -137,7 +137,7 @@ rec {
   llamaOptionFormat = optionName: {
     option = "--${optionName}";
     sep = null;
-    explicitBool = true;
+    explicitBool = false;
   };
 
   /**
