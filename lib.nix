@@ -153,6 +153,7 @@ rec {
         model = my-model;
         port = 8080;
       };
+      env.DO_THING = "true";
     }
     # Type
 
@@ -168,6 +169,7 @@ rec {
   formatLlamaCmd =
     {
       package,
+      env ? { },
       exe ? "llama-server",
       args,
     }:
@@ -176,5 +178,11 @@ rec {
 
       scriptArgsString = lib.concatStringsSep " \\\n  " cliArgs;
     in
-    "${lib.getExe' package exe} ${scriptArgsString}";
+    lib.getExe (
+      pkgs.writeShellApplication {
+        name = "llama-swap-cmd";
+        text = "${lib.getExe' package exe} ${scriptArgsString}";
+        runtimeEnv = env;
+      }
+    );
 }

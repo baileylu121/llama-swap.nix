@@ -175,14 +175,6 @@ let
           The command to run to start the inference server
         '';
         type = types.str;
-        apply =
-          cmdStr:
-          lib.getExe (
-            pkgs.writeShellApplication {
-              name = "llama-swap-cmd";
-              text = cmdStr;
-            }
-          );
       };
       name = mkOption {
         description = ''
